@@ -1,0 +1,19 @@
+{
+  "name": "jon-jake-test",
+  "version": "1.0.0",
+  "description": "Repo for the API and Cuke tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress run --spec \"**/*.feature\"",
+    "test:all": "cypress run --spec \"**/*.features\"",
+    "cypress:open": "cypress open"
+  },
+  "author": "",
+  "license": "ISC",
+  "cypress-cucumber-preprocessor": {"nonGlobalStepDefinitions": true
+  },  
+  "devDependencies": {
+    "@cucumber/cucumber": "^8.1.2",
+    "cypress": "^9.6.0",
+    "cypress-cucumber-preprocessor": "^4.3.1"
+  }}
