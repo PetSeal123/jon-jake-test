@@ -14,7 +14,6 @@ When('I search for dogs', () => {
 // a keypress of "Enter" was a better option than clicking the search button.
     cy.get('.gLFyf')
       .type('Dogs{enter}')
-    // cy.get('.FPdoLc > center > .gNO89b').click()
   })
 
 Then('I expect to see results for dogs', () => {
