@@ -1,30 +1,50 @@
 import { Given, When, Then, And } from "cypress-cucumber-preprocessor/steps";
 
-//set the variable cameara name each time. Try and make it unique each run
-const camera_name = "camera12"
+//set the variable camearaName each time. Try and make it unique each run
+
+//I might install day.js when I have everything else sorted as it sounds useful for this.
+//also maybe a way of getting the user to imput the data or randomly generate it. 
+const createdAt = 'today'
+const cameraName = 'SuperCam300'
+const cameraLens = '60mm'
+const selfTimer = true
+const flash = false
 
 Given('I POST new Camera data', () =>{
-    cy.request('POST', 'https://608abf88737e470017b73d96.mockapi.io/Cameras/', { "createdAt": "today",
-                                                                                "CameraName": camera_name,
-                                                                                "CameraLens": "50mm 1.8g",
-                                                                                "SelfTimer": false,
-                                                                                "Flash": false})
-        .then((response) => {
-    // response.body is automatically serialized into JSON
-            expect(response.status).to.eq(201)
-            expect(response.body).to.have.property('CameraName',camera_name)
+
+    cy.request({
+        method: 'POST',
+        url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/',
+        body: { "createdAt": createdAt,
+                "CameraName": cameraName,
+                "CameraLens": cameraLens,
+                "SelfTimer": selfTimer,
+                "Flash": flash}
+        })
+    .then((response) => {
+        const cameraId = response.body.id
+        cy.log(JSON.stringify(response))
+        cy.log('New Camera ID is: ' + cameraId)
+        expect(response.status).to.eq(201)
+        expect(response.body).to.have.property('CameraName', cameraName)
            
     })
 })
 
 Then('I can GET the new camera data', () =>{
-    cy.request('GET', 'https://608abf88737e470017b73d96.mockapi.io/Cameras/?CameraName=' + camera_name)
-       .then((response) => {
-            // response.body is automatically serialized into JSON
-            expect(response.status).to.eq(200)
-            //the string assertion below worked on the post api.
-            //It appears to be that the POST returns a response in a different format
-            //to the GET
-            expect(response).to.have.property('CameraName').to.be.a('string')
-            })
+
+    cy.log('Camera ID = ' + cameraId)
+    cy.request({
+        method : 'GET',
+        url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/' + cameraId,
+        })
+    .then((response)=> {
+        cy.log(JSON.stringify(response))
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('id', cameraId)
+        expect(response.body).to.have.property('CameraName').to.be.a('string')
+        expect(response.body).to.have.property('Flash').to.be.a('Boolean')
+    })
 })
+
+
