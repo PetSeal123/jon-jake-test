@@ -21,3 +21,4 @@ Then('I expect to see results for dogs', () => {
       .should('contain', 'Dog')
   })
   //think about asserting from a defined list of words like Dog dog's or doggy
+
