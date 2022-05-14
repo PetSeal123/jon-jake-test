@@ -58,9 +58,14 @@ Given('I POST then GET and assert the data', () => {
             "SelfTimer": selfTimer,
             "Flash": flash
         }
-    }).then((response) => {
+    })
+    .then((response) => {
+        expect(response.status).to.eq(201)
+    })
+    .then((response) => {
         // had to comment the below out as you cant mix
-        //async and sync code together in cy.then.
+        //async and sync code together in cy.then. Hence the 
+        //expects being in another .then block below.
         // cy.log(JSON.stringify(response))
         // cy.log('New Camera ID is: ' + cameraId)
         // expect(response.status).to.eq(201)
@@ -80,6 +85,12 @@ Given('I POST then GET and assert the data', () => {
                     expect(response.body).to.have.property('CameraName').to.be.a('string')
                     expect(response.body).to.have.property('Flash').to.be.a('Boolean')
                 })
+                // .then((cameraId) => {
+                //     cy.request({
+                //         method: 'DELETE',
+                //         url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/' + cameraId
+                //     })
+                // })
 
         })
 })
