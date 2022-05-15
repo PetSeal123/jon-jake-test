@@ -1,14 +1,64 @@
 import { Given, When, Then, And } from "cypress-cucumber-preprocessor/steps";
 
-//set the variable camearaName each time. Try and make it unique each run
-
-//I might install day.js when I have everything else sorted as it sounds useful for this.
-//also maybe a way of getting the user to imput the data or randomly generate it. 
+// set the variable camearaName each time. Try and make it unique each run
+// look into ways of randomly making the camera data different each run.
 const createdAt = 'today'
 const cameraName = 'SuperCam900'
 const cameraLens = '111mm'
 const selfTimer = true
 const flash = true
+
+Given('I POST then GET and assert the data', () => {
+    cy.request({
+        method: 'POST',
+        url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/',
+        body: {
+            "createdAt": createdAt,
+            "CameraName": cameraName,
+            "CameraLens": cameraLens,
+            "SelfTimer": selfTimer,
+            "Flash": flash
+        }
+    })
+    .then((response) => {
+        cy.log('The POST response is: ' + response.status)
+        cy.log('New Camera ID is: ' + response.body.id)
+        expect(response.status).to.eq(201)
+        expect(response.body).to.have.property('CameraName', cameraName)
+
+    })
+    .then((response) => {
+        // this code has to be separated from cypress code
+        // something about syc and async code in the same .then
+        const cameraId = response.body.id
+        return cameraId
+    })
+        .then((cameraId) => {
+            cy.request({
+                method: 'GET',
+                url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/' + cameraId
+            })
+              .then((response) => {
+                // logging the response body could be a nice way of seeing what was used
+                // I also like to inspect the cypress steps to see this.
+                    cy.log(JSON.stringify(response))
+                    expect(response.status).to.eq(200)
+                    expect(response.body).to.have.property('id', cameraId)
+                    expect(response.body).to.have.property('CameraName').to.be.a('string')
+                    expect(response.body).to.have.property('Flash').to.be.a('Boolean')
+                })
+                // I think to add the delete I need to return the camera ID again. 
+                // I dislike how many .then's I'm using and should instead learn 
+                // to inherit/share vairables between cucumber steps to tidy it up.
+                // .then((cameraId) => {
+                //     cy.request({
+                //         method: 'DELETE',
+                //         url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/' + cameraId
+                //     })
+                // })
+
+        })
+})
 
 // Given('I POST new Camera data', () =>{
 
@@ -46,51 +96,3 @@ const flash = true
 //         expect(response.body).to.have.property('Flash').to.be.a('Boolean')
 //     })
 // })
-
-Given('I POST then GET and assert the data', () => {
-    cy.request({
-        method: 'POST',
-        url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/',
-        body: {
-            "createdAt": createdAt,
-            "CameraName": cameraName,
-            "CameraLens": cameraLens,
-            "SelfTimer": selfTimer,
-            "Flash": flash
-        }
-    })
-    .then((response) => {
-        expect(response.status).to.eq(201)
-    })
-    .then((response) => {
-        // had to comment the below out as you cant mix
-        //async and sync code together in cy.then. Hence the 
-        //expects being in another .then block below.
-        // cy.log(JSON.stringify(response))
-        // cy.log('New Camera ID is: ' + cameraId)
-        // expect(response.status).to.eq(201)
-        // expect(response.body).to.have.property('CameraName', cameraName)
-        const cameraId = response.body.id
-        return cameraId
-    })
-        .then((cameraId) => {
-            cy.request({
-                method: 'GET',
-                url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/' + cameraId
-            })
-              .then((response) => {
-                    cy.log(JSON.stringify(response))
-                    expect(response.status).to.eq(200)
-                    expect(response.body).to.have.property('id', cameraId)
-                    expect(response.body).to.have.property('CameraName').to.be.a('string')
-                    expect(response.body).to.have.property('Flash').to.be.a('Boolean')
-                })
-                // .then((cameraId) => {
-                //     cy.request({
-                //         method: 'DELETE',
-                //         url: 'https://608abf88737e470017b73d96.mockapi.io/Cameras/' + cameraId
-                //     })
-                // })
-
-        })
-})
